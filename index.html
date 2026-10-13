@@ -1,264 +1,524 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b0c10">
-<title>VYBE — Search your vibe</title>
-<style>
-:root{color-scheme:dark;--bg:#0b0c10;--panel:#15171e;--panel2:#1b1e28;--border:#2b2e3a;--text:#f4f5f9;--muted:#9da3b5;--accent:#a78bfa;--accent2:#7c5ce7;--green:#fb542b}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at top,#17152b 0,#0b0c10 45%);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
-header{height:72px;padding:0 clamp(16px,5vw,72px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:#101116eF;position:sticky;top:0;z-index:10;backdrop-filter:blur(14px)}
-.logo{font-size:25px;font-weight:950;letter-spacing:2px}.logo span{color:var(--accent)}
-.status{font-size:11px;letter-spacing:1.5px;color:var(--muted)}
-main{max-width:1250px;margin:auto;padding:clamp(28px,5vw,60px) 22px 64px}
-.hero{text-align:center;margin-bottom:34px}
-.tag{color:var(--accent);font-size:11px;font-weight:850;letter-spacing:3px}
-h1{font-size:clamp(30px,5vw,48px);margin:12px 0;letter-spacing:-1px}
-.subtitle{color:var(--muted);font-size:14px;line-height:1.7}
-.mode-switch{display:flex;gap:8px;width:min(100%,440px);margin:27px auto 0;padding:6px;border:1px solid var(--border);border-radius:16px;background:#101116}
-.mode-btn{flex:1;min-height:48px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:14px;font-weight:800;cursor:pointer;display:flex;gap:9px;align-items:center;justify-content:center;padding:10px 14px}
-.mode-btn.active{background:var(--accent);color:#171021;box-shadow:0 5px 20px #a78bfa30}
-.mode-btn[data-mode="brave"].active{background:var(--green);color:#fff;box-shadow:0 5px 20px #fb542b25}
-.mode-icon{font-size:17px}
-.search{display:flex;gap:10px;max-width:760px;margin:17px auto 0}
-input{min-width:0;flex:1;padding:16px 18px;border:1px solid var(--border);border-radius:13px;background:var(--panel);color:#fff;font-size:15px;outline:none}
-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #a78bfa20}
-button{font-family:inherit}
-.search-submit{border:0;border-radius:12px;padding:0 24px;background:var(--accent);color:#171021;font-weight:850;cursor:pointer;font-size:14px;min-height:52px}
-.search-submit.brave{background:var(--green);color:white}
-button:disabled{opacity:.55;cursor:wait}
-.hint{margin-top:12px;color:var(--muted);font-size:12px;min-height:18px}
-.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:35px 0 17px}
-.section-head h2{font-size:19px;margin:0}.count{color:var(--muted);font-size:13px}
-.results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
-.video-card,.web-card{min-width:0;border:1px solid var(--border);background:linear-gradient(145deg,#171922,#12141a);border-radius:15px;overflow:hidden;transition:transform .18s,border-color .18s}
-.video-card{cursor:pointer}.video-card:hover,.web-card:hover{transform:translateY(-2px);border-color:var(--accent)}
-.video-card.selected{border-color:var(--accent)}
-.thumb-wrap{position:relative;aspect-ratio:16/9;background:#22242c}
-.thumb{width:100%;height:100%;object-fit:cover;display:block}
-.play{position:absolute;inset:0;display:grid;place-items:center;font-size:35px;text-shadow:0 2px 12px #000;background:#00000012}
-.video-info,.web-info{padding:14px}
-.video-title,.web-title{font-size:14px;font-weight:760;line-height:1.55;overflow-wrap:anywhere}
-.channel,.web-url{color:var(--muted);font-size:12px;margin-top:9px;overflow-wrap:anywhere}
-.web-card{padding:17px;display:flex;flex-direction:column;gap:10px}
-.web-title{font-size:16px}
-.web-url{margin:0;color:#8fc8a0}
-.web-description{font-size:13px;color:#c4c7d2;line-height:1.65;overflow-wrap:anywhere}
-.web-open{align-self:flex-start;color:#ffb29c;text-decoration:none;font-size:13px;font-weight:750;margin-top:auto}
-.web-open:hover{text-decoration:underline}
-.message{color:var(--muted);text-align:center;padding:42px 12px;line-height:1.8;grid-column:1/-1;border:1px dashed var(--border);border-radius:14px}
-.player-section{display:none;margin:38px 0;padding:18px;border:1px solid var(--border);background:var(--panel);border-radius:18px}
-.player-section.active{display:block}
-.player{width:100%;aspect-ratio:16/9;background:#000;border:0;border-radius:12px;display:block}
-.now-title{font-size:19px;margin:15px 0 6px}.now-channel{color:var(--muted);font-size:13px}
-.note{color:var(--muted);font-size:12px;line-height:1.7;margin-top:16px}
-footer{border-top:1px solid var(--border);padding:24px;text-align:center;color:var(--muted);font-size:12px;line-height:1.8}
-[hidden]{display:none!important}
-@media(max-width:850px){.results{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:520px){header{height:62px}.status{font-size:9px}main{padding:30px 14px 45px}.mode-btn{font-size:13px;padding:9px 6px}.search{gap:7px}.search input{padding:14px 11px}.search-submit{padding:0 15px}.results{grid-template-columns:1fr;gap:13px}.video-card{display:grid;grid-template-columns:43% 1fr}.thumb-wrap{height:100%;min-height:100px;aspect-ratio:auto}.video-info{padding:10px}.video-title{font-size:13px}.player-section{padding:11px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VYBE - Video Search</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0c10;
+      --panel: #15171e;
+      --border: #292c36;
+      --text: #f4f5f9;
+      --muted: #999eae;
+      --accent: #a78bfa;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    header {
+      height: 72px;
+      padding: 0 6%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: #101116;
+    }
+
+    .logo {
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .status {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    main {
+      max-width: 1250px;
+      margin: auto;
+      padding: 45px 24px 70px;
+    }
+
+    .hero { text-align: center; margin-bottom: 34px; }
+
+    .tag {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 3px;
+    }
+
+    h1 {
+      font-size: clamp(30px, 5vw, 48px);
+      margin: 12px 0;
+      letter-spacing: -1px;
+    }
+
+    .subtitle { color: var(--muted); font-size: 14px; }
+
+    .search {
+      display: flex;
+      gap: 10px;
+      max-width: 720px;
+      margin: 28px auto 0;
+    }
+
+    input {
+      min-width: 0;
+      flex: 1;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: var(--panel);
+      color: white;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus { border-color: var(--accent); }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 0 24px;
+      background: var(--accent);
+      color: #151020;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:disabled { opacity: .5; cursor: wait; }
+
+    .player-section {
+      display: none;
+      margin: 42px 0;
+      padding: 20px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 18px;
+    }
+
+    .player-section.active { display: block; }
+
+    .player {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border: 0;
+      border-radius: 12px;
+      display: block;
+    }
+
+    .now-title {
+      font-size: 20px;
+      margin: 16px 0 6px;
+    }
+
+    .now-channel { color: var(--muted); font-size: 13px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 35px 0 20px;
+    }
+
+    .section-head h2 { font-size: 20px; margin: 0; }
+
+    #count { color: var(--muted); font-size: 13px; }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .video-card {
+      min-width: 0;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 15px;
+      overflow: hidden;
+      transition: transform .18s, border-color .18s;
+    }
+
+    .video-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+    }
+
+    .video-card.selected { border-color: var(--accent); }
+
+    .thumb-wrap {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #22242c;
+    }
+
+    .thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .play {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 36px;
+      text-shadow: 0 2px 12px #000;
+      background: #00000012;
+    }
+
+    .video-info { padding: 14px; }
+
+    .video-title {
+      font-size: 14px;
+      font-weight: 750;
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+    }
+
+    .channel {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 9px;
+    }
+
+    .message {
+      color: var(--muted);
+      text-align: center;
+      padding: 42px 12px;
+      line-height: 1.8;
+      grid-column: 1 / -1;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 25px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 850px) {
+      .results { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      header { padding: 0 18px; }
+      main { padding: 32px 15px 50px; }
+      .search { gap: 7px; }
+      .search input { padding: 14px 11px; }
+      .search button { padding: 0 15px; }
+      .results { grid-template-columns: 1fr; gap: 15px; }
+      .video-card { display: grid; grid-template-columns: 43% 1fr; }
+      .thumb-wrap { height: 100%; min-height: 100px; aspect-ratio: auto; }
+      .video-info { padding: 10px; }
+      .video-title { font-size: 13px; }
+      .player-section { padding: 12px; }
+    }
+  </style>
 </head>
 <body>
+
 <header>
   <div class="logo">VYBE<span>.</span></div>
-  <div class="status">SEARCH YOUR VIBE</div>
+
+  <form id="urlForm" class="url-bar">
+    <input
+      id="urlInput"
+      type="text"
+      placeholder="https://example.com"
+      aria-label="開きたいURL"
+    >
+    <button type="submit">開く ↗</button>
+  </form>
+
+  <div class="status">VIDEO DISCOVERY</div>
 </header>
-<main>
-  <section class="hero">
-    <div class="tag">ONE PLACE, TWO SEARCHES</div>
-    <h1>探したいものを、ここから。</h1>
-    <div class="subtitle">YouTubeの動画も、Webページも。VYBEの中で検索。</div>
 
-    <div class="mode-switch" role="tablist" aria-label="検索サービス">
-      <button class="mode-btn active" id="youtubeMode" type="button" role="tab" aria-selected="true" data-mode="youtube"><span class="mode-icon">▶</span>YouTube</button>
-      <button class="mode-btn" id="braveMode" type="button" role="tab" aria-selected="false" data-mode="brave"><span class="mode-icon">🦁</span>Brave Search</button>
-    </div>
 
-    <form class="search" id="searchForm">
-      <input id="query" type="search" placeholder="見たい動画を検索..." aria-label="検索キーワード" required>
-      <button class="search-submit" id="searchButton" type="submit">検索 →</button>
-    </form>
-    <div class="hint" id="hint">YouTubeの動画をVYBE内で検索・再生できます。</div>
-  </section>
+  <main>
+    <section class="hero">
+      <div class="tag">YOUR VIDEO SPACE</div>
+      <h1>好きな動画を、見つけよう。</h1>
+      <div class="subtitle">
+        YouTubeの動画を検索して、このページ内で再生できます。
+      </div>
 
-  <section class="player-section" id="playerSection">
-    <iframe id="player" class="player" title="YouTube動画プレイヤー" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-    <h2 class="now-title" id="nowTitle"></h2>
-    <div class="now-channel" id="nowChannel"></div>
-  </section>
+      <form class="search" id="searchForm">
+        <input
+          id="query"
+          type="search"
+          placeholder="見たい動画を検索..."
+          aria-label="動画を検索"
+          required
+        >
+        <button id="searchButton" type="submit">検索 →</button>
+      </form>
+    </section>
 
-  <section>
-    <div class="section-head"><h2 id="resultHeading">動画を検索</h2><span class="count" id="count"></span></div>
-    <div class="results" id="results">
-      <div class="message">上の切り替えボタンで検索先を選んでね。<br>例：ボカロ、ゲーム実況、ニュース</div>
-    </div>
-    <div class="note" id="braveNote" hidden>Brave Searchの結果はVYBE内に表示されます。検索APIへの接続設定が必要です。</div>
-  </section>
-</main>
-<footer>VYBE. · Search portal<br>検索結果の内容・利用条件は各サービスに準じます。</footer>
+    <section class="player-section" id="playerSection">
+      <iframe
+        id="player"
+        class="player"
+        title="YouTube動画プレイヤー"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+      <h2 class="now-title" id="nowTitle"></h2>
+      <div class="now-channel" id="nowChannel"></div>
+    </section>
 
-<script>
-/*
-  YouTube APIキーはこのHTMLに設定します（公開HTMLから閲覧可能です）。
-  Google Cloud側で YouTube Data API v3 とHTTPリファラーを制限してください。
+    <section>
+      <div class="section-head">
+        <h2 id="resultHeading">動画を検索</h2>
+        <span id="count"></span>
+      </div>
+      <div class="results" id="results">
+        <div class="message">
+          上の検索欄にキーワードを入力してみよう！<br>
+          例：ボカロ、ゲーム実況、音楽
+        </div>
+      </div>
+    </section>
+  </main>
 
-  Brave Searchは秘密のAPIキーをブラウザに置かないため、サーバー側の中継APIを使います。
-  下の BRAVE_API_ENDPOINT を、後で公開するWorkerのURLに変更してください。
-*/
-const YOUTUBE_API_KEY = "YOUR_API_KEY";
-const BRAVE_API_ENDPOINT = "YOUR_BRAVE_WORKER_URL";
+  <footer>
+    VYBE. · 動画検索ポータル<br>
+    動画の配信・再生はYouTubeのサービスを利用しています。
+  </footer>
 
-const form = document.getElementById("searchForm");
-const queryInput = document.getElementById("query");
-const searchButton = document.getElementById("searchButton");
-const results = document.getElementById("results");
-const count = document.getElementById("count");
-const heading = document.getElementById("resultHeading");
-const playerSection = document.getElementById("playerSection");
-const player = document.getElementById("player");
-const nowTitle = document.getElementById("nowTitle");
-const nowChannel = document.getElementById("nowChannel");
-const hint = document.getElementById("hint");
-const braveNote = document.getElementById("braveNote");
-const youtubeMode = document.getElementById("youtubeMode");
-const braveMode = document.getElementById("braveMode");
-let mode = "youtube";
+  <script>
+    // Google Cloudで作成したAPIキーを設定してください。
+    // このHTMLを公開すると、キーを他人に見られる可能性があります。
+    const API_KEY = "AIzaSyA5k2XbJv4Gj1B3mnSwQENsK-LLiwpY4DY";
 
-function setMode(nextMode) {
-  mode = nextMode;
-  const isYouTube = mode === "youtube";
-  youtubeMode.classList.toggle("active", isYouTube);
-  braveMode.classList.toggle("active", !isYouTube);
-  youtubeMode.setAttribute("aria-selected", String(isYouTube));
-  braveMode.setAttribute("aria-selected", String(!isYouTube));
-  searchButton.classList.toggle("brave", !isYouTube);
-  queryInput.placeholder = isYouTube ? "見たい動画を検索..." : "Webで検索したい言葉を入力...";
-  queryInput.setAttribute("aria-label", isYouTube ? "動画を検索" : "Webを検索");
-  hint.textContent = isYouTube
-    ? "YouTubeの動画をVYBE内で検索・再生できます。"
-    : "Brave SearchのWeb検索結果をこのページ内に表示します。";
-  heading.textContent = isYouTube ? "動画を検索" : "Webを検索";
-  braveNote.hidden = isYouTube;
-  playerSection.classList.remove("active");
-  player.src = "";
-  results.innerHTML = '<div class="message">検索したい言葉を入力してね。</div>';
-  count.textContent = "";
-}
-youtubeMode.addEventListener("click", () => setMode("youtube"));
-braveMode.addEventListener("click", () => setMode("brave"));
+    const form = document.getElementById("searchForm");
+    const queryInput = document.getElementById("query");
+    const searchButton = document.getElementById("searchButton");
+    const results = document.getElementById("results");
+    const count = document.getElementById("count");
+    const heading = document.getElementById("resultHeading");
+    const playerSection = document.getElementById("playerSection");
+    const player = document.getElementById("player");
+    const nowTitle = document.getElementById("nowTitle");
+    const nowChannel = document.getElementById("nowChannel");
 
-form.addEventListener("submit", async (event) => {
+    let videos = [];
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const query = queryInput.value.trim();
+      if (!query) return;
+
+      if (!API_KEY || API_KEY === "ここにAPIキーを入力") {
+        showMessage("まずコード内のAPI_KEYに、自分のAPIキーを設定してください。");
+        return;
+      }
+
+      searchButton.disabled = true;
+      searchButton.textContent = "検索中...";
+      heading.textContent = "検索結果";
+      count.textContent = "";
+      results.innerHTML = '<div class="message">動画を探しています...</div>';
+
+      try {
+        const params = new URLSearchParams({
+          part: "snippet",
+          type: "video",
+          maxResults: "12",
+          q: query,
+          regionCode: "JP",
+          relevanceLanguage: "ja",
+          safeSearch: "moderate",
+          key: API_KEY
+        });
+
+        const response = await fetch(
+          "https://www.googleapis.com/youtube/v3/search?" + params
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          const apiMessage = data.error?.message || "APIリクエストに失敗しました。";
+          throw new Error(apiMessage);
+        }
+
+        videos = (data.items || []).filter(item => item.id?.videoId);
+
+        if (videos.length === 0) {
+          showMessage("動画が見つかりませんでした。別のキーワードを試してね。");
+          return;
+        }
+
+        renderVideos(videos);
+        count.textContent = `${videos.length} 件`;
+        heading.textContent = `「${query}」の検索結果`;
+
+      } catch (error) {
+        console.error(error);
+        showMessage(
+          "検索に失敗しました。\n" +
+          error.message +
+          "\nAPIキー・APIの制限・利用枠を確認してください。"
+        );
+      } finally {
+        searchButton.disabled = false;
+        searchButton.textContent = "検索 →";
+      }
+    });
+
+    function renderVideos(items) {
+      results.innerHTML = "";
+
+      items.forEach((item) => {
+        const videoId = item.id.videoId;
+        const snippet = item.snippet;
+        const title = snippet.title || "タイトルなし";
+        const channel = snippet.channelTitle || "";
+        const thumbnail =
+          snippet.thumbnails?.high?.url ||
+          snippet.thumbnails?.medium?.url ||
+          snippet.thumbnails?.default?.url ||
+          "";
+
+        const card = document.createElement("article");
+        card.className = "video-card";
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `${title} を再生`);
+
+        const thumbWrap = document.createElement("div");
+        thumbWrap.className = "thumb-wrap";
+
+        const img = document.createElement("img");
+        img.className = "thumb";
+        img.src = thumbnail;
+        img.alt = "";
+        img.loading = "lazy";
+
+        const playIcon = document.createElement("div");
+        playIcon.className = "play";
+        playIcon.textContent = "▶";
+
+        thumbWrap.append(img, playIcon);
+
+        const info = document.createElement("div");
+        info.className = "video-info";
+
+        const titleEl = document.createElement("div");
+        titleEl.className = "video-title";
+        titleEl.textContent = title;
+
+        const channelEl = document.createElement("div");
+        channelEl.className = "channel";
+        channelEl.textContent = channel;
+
+        info.append(titleEl, channelEl);
+        card.append(thumbWrap, info);
+
+        const play = () => {
+          playVideo(videoId, title, channel, card);
+        };
+
+        card.addEventListener("click", play);
+        card.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            play();
+          }
+        });
+
+        results.appendChild(card);
+      });
+    }
+
+    function playVideo(videoId, title, channel, card) {
+      // YouTubeの埋め込みプレイヤーで動画を再生します。
+      player.src =
+        "https://www.youtube.com/embed/" +
+        encodeURIComponent(videoId) +
+        "?autoplay=1";
+
+      nowTitle.textContent = title;
+      nowChannel.textContent = channel;
+      playerSection.classList.add("active");
+
+      document.querySelectorAll(".video-card").forEach(el => {
+        el.classList.remove("selected");
+      });
+      card.classList.add("selected");
+
+      playerSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+
+    function showMessage(message) {
+      results.innerHTML = "";
+      const box = document.createElement("div");
+      box.className = "message";
+      box.style.whiteSpace = "pre-line";
+      box.textContent = message;
+      results.appendChild(box);
+      count.textContent = "";
+    }
+    
+document.getElementById("urlForm").addEventListener("submit", (event) => {
   event.preventDefault();
-  const query = queryInput.value.trim();
-  if (!query) return;
-  searchButton.disabled = true;
-  searchButton.textContent = "検索中...";
-  count.textContent = "";
-  heading.textContent = mode === "youtube" ? `「${query}」の動画検索結果` : `「${query}」のWeb検索結果`;
-  results.innerHTML = '<div class="message">検索しています…</div>';
-  playerSection.classList.remove("active");
-  player.src = "";
+
+  let value = document.getElementById("urlInput").value.trim();
+
+  if (!value) return;
+
+  if (!/^https?:\/\//i.test(value)) {
+    value = "https://" + value;
+  }
+
   try {
-    if (mode === "youtube") await searchYouTube(query);
-    else await searchBrave(query);
-  } catch (error) {
-    console.error(error);
-    showMessage(error.message || "検索に失敗しました。設定を確認してください。");
-  } finally {
-    searchButton.disabled = false;
-    searchButton.textContent = "検索 →";
+    const url = new URL(value);
+
+    if (url.protocol !== "https:" && url.protocol !== "http:") {
+      alert("http または https のURLを入力してください。");
+      return;
+    }
+
+    window.open(url.href, "_blank", "noopener,noreferrer");
+  } catch {
+    alert("URLが正しいか確認してください。");
   }
 });
 
-async function searchYouTube(query) {
-  if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "YOUR_API_KEY" || YOUTUBE_API_KEY.trim() === "") {
-    throw new Error("YouTube APIキーが未設定です。index.html内の YOUTUBE_API_KEY を設定してください。");
-  }
-  const params = new URLSearchParams({
-    part: "snippet", type: "video", maxResults: "12", q: query,
-    regionCode: "JP", relevanceLanguage: "ja", safeSearch: "moderate", key: YOUTUBE_API_KEY
-  });
-  const response = await fetch("https://www.googleapis.com/youtube/v3/search?" + params);
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error?.message || "YouTube APIリクエストに失敗しました。");
-  const videos = (data.items || []).filter(item => item.id?.videoId);
-  if (!videos.length) { showMessage("動画が見つかりませんでした。別のキーワードを試してね。"); return; }
-  renderVideos(videos);
-  count.textContent = `${videos.length} 件`;
-}
-function renderVideos(items) {
-  results.innerHTML = "";
-  items.forEach(item => {
-    const videoId = item.id.videoId;
-    const snippet = item.snippet || {};
-    const title = snippet.title || "タイトルなし";
-    const channel = snippet.channelTitle || "";
-    const thumbnail = snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url || "";
-    const card = document.createElement("article");
-    card.className = "video-card";
-    card.tabIndex = 0;
-    card.setAttribute("role", "button");
-    card.setAttribute("aria-label", `${title} を再生`);
-    const thumbWrap = document.createElement("div"); thumbWrap.className = "thumb-wrap";
-    const img = document.createElement("img"); img.className = "thumb"; img.src = thumbnail; img.alt = ""; img.loading = "lazy";
-    const playIcon = document.createElement("div"); playIcon.className = "play"; playIcon.textContent = "▶";
-    thumbWrap.append(img, playIcon);
-    const info = document.createElement("div"); info.className = "video-info";
-    const titleEl = document.createElement("div"); titleEl.className = "video-title"; titleEl.textContent = title;
-    const channelEl = document.createElement("div"); channelEl.className = "channel"; channelEl.textContent = channel;
-    info.append(titleEl, channelEl); card.append(thumbWrap, info);
-    const play = () => playVideo(videoId, title, channel, card);
-    card.addEventListener("click", play);
-    card.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); play(); }});
-    results.appendChild(card);
-  });
-}
-function playVideo(videoId, title, channel, card) {
-  player.src = "https://www.youtube.com/embed/" + encodeURIComponent(videoId) + "?autoplay=1";
-  nowTitle.textContent = title;
-  nowChannel.textContent = channel;
-  playerSection.classList.add("active");
-  document.querySelectorAll(".video-card").forEach(el => el.classList.remove("selected"));
-  card.classList.add("selected");
-  playerSection.scrollIntoView({behavior:"smooth", block:"start"});
-}
-
-async function searchBrave(query) {
-  if (!BRAVE_API_ENDPOINT || BRAVE_API_ENDPOINT === "YOUR_BRAVE_WORKER_URL") {
-    throw new Error("Brave検索の中継APIがまだ設定されていません。次の手順でWorkerを公開してURLを設定します。");
-  }
-  const endpoint = new URL(BRAVE_API_ENDPOINT);
-  endpoint.searchParams.set("q", query);
-  const response = await fetch(endpoint.toString(), { headers: { "Accept": "application/json" } });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || "Brave Search APIへの接続に失敗しました。");
-  const webResults = data.web?.results || data.results || [];
-  if (!webResults.length) { showMessage("Webページが見つかりませんでした。別のキーワードを試してね。"); return; }
-  renderWebResults(webResults);
-  count.textContent = `${webResults.length} 件`;
-}
-function renderWebResults(items) {
-  results.innerHTML = "";
-  items.slice(0, 10).forEach(item => {
-    const card = document.createElement("article"); card.className = "web-card";
-    const title = document.createElement("div"); title.className = "web-title";
-    const link = document.createElement("a"); link.className = "web-open"; link.href = item.url || "#";
-    link.target = "_blank"; link.rel = "noopener noreferrer"; link.textContent = item.title || item.url || "検索結果";
-    // Result titles are links; open the actual page in a new tab so VYBE stays open.
-    title.appendChild(link);
-    const url = document.createElement("div"); url.className = "web-url"; url.textContent = item.url || "";
-    const desc = document.createElement("div"); desc.className = "web-description"; desc.textContent = item.description || item.snippet || "説明はありません。";
-    card.append(title, url, desc);
-    results.appendChild(card);
-  });
-}
-function showMessage(message) {
-  results.innerHTML = "";
-  const box = document.createElement("div"); box.className = "message"; box.textContent = message;
-  results.appendChild(box); count.textContent = "";
-}
-</script>
+  </script>
 </body>
 </html>
